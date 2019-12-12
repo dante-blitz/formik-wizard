@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "formik-wizard": {
+      "signature": "ac12fcc7cb743e26715d11cebde1761c",
+      "file": true
+    }
+  }
+}

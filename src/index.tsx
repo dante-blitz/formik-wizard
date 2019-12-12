@@ -1,7 +1,13 @@
 import { Form as DefaultForm, Formik, FormikProps } from 'formik'
+import { TransitionGroup, CSSTransition } from 'react-transition-group'
 import produce from 'immer'
 import React from 'react'
-import { Step as AlbusStep, Steps as AlbusSteps, Wizard as AlbusWizard, WizardContext } from 'react-albus'
+import {
+  Step as AlbusStep,
+  Steps as AlbusSteps,
+  Wizard as AlbusWizard,
+  WizardContext,
+} from 'react-albus'
 
 import {
   FormikWizardBaseValues,
@@ -41,6 +47,8 @@ function FormikWizardStep({
   wizard,
   formikProps,
   onSubmit,
+  forward,
+  setForward,
   setStatus,
   status,
   values,
@@ -57,6 +65,7 @@ function FormikWizardStep({
   const handleSubmit = React.useCallback(
     async (sectionValues) => {
       setStatus(undefined)
+      setForward(true)
 
       let status
 
@@ -95,6 +104,7 @@ function FormikWizardStep({
       setValues,
       step,
       values,
+      forward,
       wizard.next,
     ]
   )
@@ -116,6 +126,7 @@ function FormikWizardStep({
             actionLabel={step.actionLabel}
             isSubmitting={props.isSubmitting}
             goToPreviousStep={() => {
+              setForward(false)
               setStatus(undefined)
 
               if (step.keepValuesOnPrevious) {
@@ -130,8 +141,10 @@ function FormikWizardStep({
             }}
             status={status}
             values={values}
+            forward={forward}
             setStatus={status}
             setValues={setValues}
+            setForward={setForward}
           >
             {React.createElement(step.component)}
           </FormWrapper>
@@ -150,6 +163,7 @@ export function FormikWizard<T>({
   render,
 }: FormikWizardProps<T>) {
   const [status, setStatus] = React.useState(undefined)
+  const [forward, setForward] = React.useState(true)
   const [values, setValues] = React.useState(() => getInitialValues(steps))
 
   React.useEffect(() => {
@@ -158,45 +172,69 @@ export function FormikWizard<T>({
   }, [steps])
 
   const stepIds = React.useMemo(() => steps.map((step) => step.id), [steps])
-
   return (
-    <AlbusWizard {...albusProps}>
+    <>
       <FormikWizardContext.Provider
         value={{
           status,
           setStatus,
           values,
           setValues,
+          forward,
+          setForward,
         }}
       >
-        <AlbusSteps>
-          {steps.map((step) => (
-            <AlbusStep
-              key={step.id}
-              id={step.id}
-              render={(wizard) => (
-                <FormikWizardStep
-                  wizard={wizard}
-                  formikProps={formikProps}
-                  onSubmit={onSubmit}
-                  steps={stepIds}
-                  status={status}
-                  values={values}
-                  setValues={setValues}
-                  setStatus={setStatus}
-                  step={{
-                    ...step,
-                    initialValues: values[step.id] || {},
-                  }}
-                  Form={Form}
-                  FormWrapper={render}
-                />
-              )}
-            />
-          ))}
-        </AlbusSteps>
+        <AlbusWizard
+          {...albusProps}
+          render={(wizard) => {
+            return (
+              <div className={forward ? 'forward' : 'back'}>
+                <TransitionGroup className="wizard-container">
+                  <CSSTransition
+                    key={wizard.step.id}
+                    classNames="wizard"
+                    timeout={{ enter: 800, exit: 800 }}
+                  >
+                    <div className="wizard-step">
+                      <AlbusSteps key={wizard.step.id} step={wizard.step}>
+                        {steps.map((step) => {
+                          return (
+                            <AlbusStep
+                              key={step.id}
+                              id={step.id}
+                              render={(wizard) => (
+                                <FormikWizardStep
+                                  wizard={wizard}
+                                  formikProps={formikProps}
+                                  onSubmit={onSubmit}
+                                  steps={stepIds}
+                                  status={status}
+                                  values={values}
+                                  forward={forward}
+                                  setValues={setValues}
+                                  setStatus={setStatus}
+                                  setForward={setForward}
+                                  step={{
+                                    ...step,
+                                    initialValues: values[step.id] || {},
+                                  }}
+                                  Form={Form}
+                                  FormWrapper={render}
+                                />
+                              )}
+                            />
+                          )
+                        })}
+                      </AlbusSteps>
+                    </div>
+                  </CSSTransition>
+                </TransitionGroup>
+              </div>
+            )
+          }}
+        />
       </FormikWizardContext.Provider>
-    </AlbusWizard>
+    </>
   )
 }
 

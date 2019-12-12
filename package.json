@@ -23,6 +23,7 @@
     "formik": "^2.0.1-rc.12",
     "react": "^16.8.6",
     "react-albus": "^2.0.0",
+    "react-transition-group": "^4.3.0",
     "yup": "^0.27.0"
   },
   "devDependencies": {
@@ -30,17 +31,20 @@
     "@types/react": "^16.8.23",
     "@types/react-albus": "^2.0.5",
     "@types/react-dom": "^16.8.5",
+    "@types/react-transition-group": "^4.2.3",
     "@types/yup": "^0.26.22",
     "formik": "^2.0.1-rc.12",
     "prettier": "^1.18.2",
     "react": "^16.8.6",
     "react-albus": "^2.0.0",
+    "react-transition-group": "^4.3.0",
     "rimraf": "^2.6.3",
     "tsdx": "^0.7.2",
     "typescript": "^3.5.3",
     "yup": "^0.27.0"
   },
   "dependencies": {
+    "formik-wizard": "file:.yalc/formik-wizard",
     "immer": "^3.1.3"
   }
 }

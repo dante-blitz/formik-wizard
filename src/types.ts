@@ -4,7 +4,9 @@ import { Schema } from 'yup'
 
 export type FormikWizardBaseValues = any
 
-export interface FormikWizardContextValue<V = any, S = any> {
+export interface FormikWizardContextValue<V = any, S = any, F = any> {
+  forward: F
+  setForward: React.Dispatch<React.SetStateAction<F>>
   status: S
   setStatus: React.Dispatch<React.SetStateAction<S>>
   values: V
@@ -15,7 +17,7 @@ export interface FormikWizardStepType {
   id: string
   component: React.SFC<{}>
   validationSchema?: Schema<any>
-  validate?: (values: any) => void | object | Promise<FormikErrors<any>>,
+  validate?: (values: any) => void | object | Promise<FormikErrors<any>>
   initialValues?: FormikWizardBaseValues
   actionLabel?: string
   onAction?: (
@@ -25,8 +27,8 @@ export interface FormikWizardStepType {
   keepValuesOnPrevious?: boolean
 }
 
-export interface FormikWizardWrapperProps<Values, Status = any>
-  extends FormikWizardContextValue<Values, Status> {
+export interface FormikWizardWrapperProps<Values, Status = any, Forward = any>
+  extends FormikWizardContextValue<Values, Status, Forward> {
   canGoBack: boolean
   goToPreviousStep: () => void
   currentStep: string
@@ -45,4 +47,7 @@ export interface FormikWizardProps<Values, Status = any> {
   formikProps?: Partial<FormikProps<Values>>
   albusProps?: Partial<WizardProps>
   Form?: any
+}
+export interface History<any> {
+  index: number
 }
